@@ -1,1 +1,2 @@
-#include "group_abstract.cpp"
+#pragma once
+
