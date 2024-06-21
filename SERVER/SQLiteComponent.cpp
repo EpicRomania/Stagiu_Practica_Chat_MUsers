@@ -89,7 +89,8 @@ std::string sql_component::get_user(int id)
         }
         else
         {
-           username="NULL";
+            std::cout<<"Failed to get Username from DB\n";
+            username="NULL";
         }
     }
     catch(std::exception & error)
@@ -112,6 +113,7 @@ std::string sql_component::get_user_password(int id)
             std::cout<<"Got a password for user id : "<<id<<'\n';
         }
         else{
+            std::cout<<"Failed to get Password from DB\n";
             password="NULL";
         }
     }
@@ -120,4 +122,136 @@ std::string sql_component::get_user_password(int id)
         std::cerr<<error.what()<<'\n';
     }
     return password;
+}
+
+int sql_component::get_id_from_username(std::string username)
+{
+    int ID{};
+    try 
+    {
+        SQLite::Statement query_username_to_id(*this->database, "SELECT ID FROM Users WHERE Username = ?");
+        query_username_to_id.bind(1,username);
+        if(query_username_to_id.executeStep())
+        {
+            ID=query_username_to_id.getColumn(0).getInt();
+            std::cout<<"Got an ID from the DB : "<< ID<<'\n';
+        }
+        else{
+            std::cout<<"Failed to get ID from DB\n";
+            ID=-1;
+        }
+        
+    }
+    catch(std::exception & error)
+    {
+        std::cerr<<error.what()<<'\n';
+    }
+    return ID;
+}
+
+void sql_component::add_group(std::string username, std::string group_name)
+{
+    int ID=get_id_from_username(username);
+        if(ID==-1)
+        {
+            std::cerr<<"User not FOund\n";
+            return;
+        }
+    try
+    {
+        
+        SQLite::Transaction transaction(*this->database);
+
+
+        SQLite::Statement query_adding_group(*this->database,"INSERT INTO Groups (ID_Creator, Group_Name, Is_Active) VALUES (?, ?, 1)");
+
+       
+        query_adding_group.bind(1,ID);
+        query_adding_group.bind(2,group_name);
+
+
+        query_adding_group.exec();
+
+        transaction.commit();
+        std::cout<<"Transaction Successfull!\n";
+
+    }
+    catch(const std::exception& error)
+    {
+        std::cerr << error.what() << '\n';
+    }
+    
+}
+
+void sql_component::delete_group()
+{
+}
+
+int sql_component::get_group_id(std::string group_name)
+{
+    int Group_ID{};
+    try
+    {
+        SQLite::Statement query_group_name_to_group_id(*this->database,"Select Group_ID FROM Groups WHERE Group_Name = ?");
+        query_group_name_to_group_id.bind(1,group_name);
+        if(query_group_name_to_group_id.executeStep())
+        {
+            Group_ID=query_group_name_to_group_id.getColumn(0).getInt();
+            std::cout<<"Got a Group_ID from DB : "<< Group_ID<<'\n';
+        }
+        else 
+        {
+            std::cout<<"Failed to get Group_ID from DB\n";
+            Group_ID=-1;
+        }
+    }
+    catch(std::exception & error )
+    {
+        std::cerr<<error.what()<<'\n';
+    }
+    return Group_ID;
+}
+
+void sql_component::send_message(std::string username, std::string group_name,std::string message)
+{
+    int ID=get_id_from_username(username);
+    if(ID==-1)
+    {
+        std::cerr<<"USer not Found\n";
+        return;
+    }
+    int Group_ID=get_group_id(group_name);
+    if(Group_ID==-1)
+    {
+        std::cerr<<"Group Not Found\n";
+        return;
+    }
+
+    try
+    {
+        SQLite::Transaction transaction(*this->database);
+
+        auto timestamp =std::chrono::system_clock::now();
+        auto timestamp_c=std::chrono::system_clock::to_time_t(timestamp);
+        std::stringstream ss;
+        ss<<std::put_time(std::localtime(&timestamp_c),"%Y-%m-%d %H:%M:%S");
+        std::string timestamp_str=ss.str();
+
+        SQLite::Statement query_adding_message(*this->database, "INSERT INTO Messages (Group_ID, ID_Sender, Timestamp, Message) VALUES (?, ?, ?, ?)");
+
+        query_adding_message.bind(1,Group_ID);
+        query_adding_message.bind(2,ID);
+        query_adding_message.bind(3,timestamp_str);
+        query_adding_message.bind(4,message);
+
+        query_adding_message.exec();
+
+        transaction.commit();
+        std::cout<<"Transaction SUccessfull\n";
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
