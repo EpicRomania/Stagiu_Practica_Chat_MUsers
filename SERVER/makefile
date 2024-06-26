@@ -1,7 +1,7 @@
 # Compiler settings - Can be customized.
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -O2
-LDFLAGS = -lSQLiteCpp -lsqlite3 -lpthread -ldl
+LDFLAGS = -lSQLiteCpp -lsqlite3 -lpthread -ldl -L/usr/lib  -lboost_system -lcrypto
 
 # Define your source files here.
 SOURCES = main.cpp SQLiteComponent.cpp server.cpp

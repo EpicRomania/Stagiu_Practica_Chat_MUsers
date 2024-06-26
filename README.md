@@ -24,3 +24,11 @@ Am creat un MAKEFILE pentru a compila partea de server mai rapid
 # 21.06.2024
 
 Am terminat de completat componenta SQL si am si testat o 
+
+# 25.08.2024
+
+Am creat componenta de server si am adaugat componetele de login/signup cu conexiune  la baza de date 
+
+# 26.06.2024
+
+Completarea functiilor de signup/login , + functii de monitorizare a utilizatorilor conectati

@@ -2,7 +2,7 @@
 
 int main()
 {
-    sql_component test("server.sqlite3");
+    // sql_component test("server.sqlite3");
 
     // test.add_username_and_password("skibidi toilet","fanumTAX");
     // test.add_username_and_password("PAM","Harvestcraft");
@@ -25,5 +25,24 @@ int main()
 
     // test.send_message("PAM","Gyaat","Lost in the sauce.");
 
+     try {
+       
+        unsigned short port = 8443;  
+        boost::asio::io_context io_context;
+
+       
+        server test_server(io_context, port);
+
+        /// test_server.test_sql_in_server();
+
+        test_server.acceptor_start();
+
+        io_context.run();
+    } 
+    catch (std::exception& e) 
+    {    
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return -1;
+    }
     return 0;
 }

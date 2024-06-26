@@ -1,0 +1,38 @@
+g++ -std=c++17 -Wall -O2 -c server.cpp -o server.o
+In file included from /usr/include/boost/asio/impl/execution_context.hpp:18,
+                 from /usr/include/boost/asio/execution_context.hpp:409,
+                 from /usr/include/boost/asio/detail/scheduler.hpp:21,
+                 from /usr/include/boost/asio/system_context.hpp:19,
+                 from /usr/include/boost/asio/impl/system_executor.hpp:22,
+                 from /usr/include/boost/asio/system_executor.hpp:662,
+                 from /usr/include/boost/asio/associated_executor.hpp:22,
+                 from /usr/include/boost/asio.hpp:21,
+                 from server.hpp:5,
+                 from server.cpp:1:
+/usr/include/boost/asio/basic_waitable_timer.hpp: In instantiation of ‘void boost::asio::basic_waitable_timer<Clock, WaitTraits, Executor>::initiate_async_wait::operator()(WaitHandler&&) const [with WaitHandler = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>; Clock = std::chrono::_V2::steady_clock; WaitTraits = boost::asio::wait_traits<std::chrono::_V2::steady_clock>; Executor = boost::asio::execution::any_executor<boost::asio::execution::context_as_t<boost::asio::execution_context&>, boost::asio::execution::detail::blocking::never_t<0>, boost::asio::execution::prefer_only<boost::asio::execution::detail::blocking::possibly_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::outstanding_work::tracked_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::outstanding_work::untracked_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::relationship::fork_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::relationship::continuation_t<0> > >]’:
+/usr/include/boost/asio/async_result.hpp:152:49:   required from ‘static boost::asio::async_result<CompletionToken, Signature>::return_type boost::asio::async_result<CompletionToken, Signature>::initiate(Initiation&&, RawCompletionToken&&, Args&& ...) [with Initiation = boost::asio::basic_waitable_timer<std::chrono::_V2::steady_clock>::initiate_async_wait; RawCompletionToken = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>; Args = {}; CompletionToken = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>; Signature = void(boost::system::error_code); boost::asio::async_result<CompletionToken, Signature>::return_type = void]’
+/usr/include/boost/asio/async_result.hpp:365:25:   required from ‘typename std::enable_if<boost::asio::detail::async_result_has_initiate_memfn<CompletionToken, Signature>::value, decltype (boost::asio::async_result<typename std::decay<_Tp>::type, Signature>::initiate(declval<Initiation&&>(), declval<CompletionToken&&>(), (declval<Args&&>)()...))>::type boost::asio::async_initiate(Initiation&&, CompletionToken&, Args&& ...) [with CompletionToken = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>; Signature = void(boost::system::error_code); Initiation = boost::asio::basic_waitable_timer<std::chrono::_V2::steady_clock>::initiate_async_wait; Args = {}; typename std::enable_if<boost::asio::detail::async_result_has_initiate_memfn<CompletionToken, Signature>::value, decltype (boost::asio::async_result<typename std::decay<_Tp>::type, Signature>::initiate(declval<Initiation&&>(), declval<CompletionToken&&>(), (declval<Args&&>)()...))>::type = void; decltype (boost::asio::async_result<typename std::decay<_Tp>::type, Signature>::initiate(declval<Initiation&&>(), declval<CompletionToken&&>(), (declval<Args&&>)()...)) = void; typename std::decay<_Tp>::type = std::decay<server::monitor_user_connections()::<lambda(const boost::system::system_error&)> >::type]’
+/usr/include/boost/asio/basic_waitable_timer.hpp:760:73:   required from ‘auto boost::asio::basic_waitable_timer<Clock, WaitTraits, Executor>::async_wait(WaitHandler&&) [with WaitHandler = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>; Clock = std::chrono::_V2::steady_clock; WaitTraits = boost::asio::wait_traits<std::chrono::_V2::steady_clock>; Executor = boost::asio::execution::any_executor<boost::asio::execution::context_as_t<boost::asio::execution_context&>, boost::asio::execution::detail::blocking::never_t<0>, boost::asio::execution::prefer_only<boost::asio::execution::detail::blocking::possibly_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::outstanding_work::tracked_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::outstanding_work::untracked_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::relationship::fork_t<0> >, boost::asio::execution::prefer_only<boost::asio::execution::detail::relationship::continuation_t<0> > >]’
+server.cpp:6:21:   required from here
+/usr/include/boost/asio/basic_waitable_timer.hpp:790:7: error: static assertion failed: WaitHandler type requirements not met
+  790 |       BOOST_ASIO_WAIT_HANDLER_CHECK(WaitHandler, handler) type_check;
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/boost/asio/basic_waitable_timer.hpp:790:7: note: ‘(sizeof (boost::asio::detail::one_arg_handler_test<server::monitor_user_connections()::<lambda(const boost::system::system_error&)> >(boost::asio::detail::rvref<server::monitor_user_connections()::<lambda(const boost::system::system_error&)> >(), 0)) == 1)’ evaluates to false
+/usr/include/boost/asio/basic_socket.hpp:1837:7: error: no match for call to ‘(server::monitor_user_connections()::<lambda(const boost::system::system_error&)>) (const boost::system::error_code&)’
+ 1837 |       BOOST_ASIO_CONNECT_HANDLER_CHECK(ConnectHandler, handler) type_check;
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+server.cpp:6:22: note: candidate: ‘server::monitor_user_connections()::<lambda(const boost::system::system_error&)>’
+    6 |     timer.async_wait([this,&timer](const boost::system::system_error &error)
+      |                      ^
+server.cpp:6:22: note:   no known conversion for argument 1 from ‘const boost::system::error_code’ to ‘const boost::system::system_error&’
+In file included from /usr/include/boost/asio/execution/any_executor.hpp:25,
+                 from /usr/include/boost/asio/execution.hpp:19,
+                 from /usr/include/boost/asio/system_executor.hpp:20,
+                 from /usr/include/boost/asio/associated_executor.hpp:22,
+                 from /usr/include/boost/asio.hpp:21,
+                 from server.hpp:5,
+                 from server.cpp:1:
+/usr/include/boost/asio/detail/non_const_lvalue.hpp:31:12: error: ‘boost::asio::detail::non_const_lvalue<T>::non_const_lvalue(T&) [with T = server::monitor_user_connections()::<lambda(const boost::system::system_error&)>]’, declared using local type ‘server::monitor_user_connections()::<lambda(const boost::system::system_error&)>’, is used but never defined [-fpermissive]
+   31 |   explicit non_const_lvalue(T& t)
+      |            ^~~~~~~~~~~~~~~~
+make: *** [makefile:17: server.o] Error 1
