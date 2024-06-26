@@ -7,29 +7,24 @@
 
 #include <SQLiteCpp/SQLiteCpp.h> /// libraria pentru baza de date
 
+class sql_component
+{
+private:
+    SQLite::Database *database = nullptr;
 
-class sql_component{
-    private:
+    bool is_connected = false;
 
-    SQLite::Database* database=nullptr;
-
-    bool is_connected=false;
-    
-    
-    
     void connect(std::string DB_Path);
-    
+
     void disconnect();
 
     void reconnect(std::string DB_Path);
 
-    
-    public:
-    
+public:
     sql_component(std::string DB_Path);
     ~sql_component();
 
-    void add_username_and_password(std::string username,std::string password);
+    void add_username_and_password(std::string username, std::string password);
 
     std::string get_user(int id);
 
@@ -37,14 +32,11 @@ class sql_component{
 
     int get_id_from_username(std::string username);
 
-    void add_group(std::string username ,std::string group_name);
+    void add_group(std::string username, std::string group_name);
 
     void delete_group(); /// doar modifica Is_Active din tabela
 
     int get_group_id(std::string group_name);
 
-    void send_message(std::string username, std::string group_name,std::string message);
-
-
-
+    void send_message(std::string username, std::string group_name, std::string message);
 };

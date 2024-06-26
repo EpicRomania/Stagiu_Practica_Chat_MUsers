@@ -9,7 +9,7 @@ LDFLAGS = -L/usr/lib -L/usr/local/lib -lboost_system -pthread
 TARGET = main
 
 # Source files
-SRC = main.cpp
+SRC = main.cpp client.cpp
 OBJ = $(SRC:.cpp=.o)
 
 # Default target

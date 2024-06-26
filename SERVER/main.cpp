@@ -13,7 +13,6 @@ int main()
     // std::cout<<test.get_user(2)<<'\n';
     // std::cout<<test.get_user_password(2)<<'\n';
 
-
     // std::cout<<test.get_user(3)<<'\n';
     // std::cout<<test.get_user_password(3)<<'\n';
 
@@ -25,12 +24,12 @@ int main()
 
     // test.send_message("PAM","Gyaat","Lost in the sauce.");
 
-     try {
-       
-        unsigned short port = 8443;  
+    try
+    {
+
+        unsigned short port = 8443;
         boost::asio::io_context io_context;
 
-       
         server test_server(io_context, port);
 
         /// test_server.test_sql_in_server();
@@ -38,9 +37,9 @@ int main()
         test_server.acceptor_start();
 
         io_context.run();
-    } 
-    catch (std::exception& e) 
-    {    
+    }
+    catch (std::exception &e)
+    {
         std::cerr << "Exception: " << e.what() << std::endl;
         return -1;
     }
