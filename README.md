@@ -32,3 +32,20 @@ Am creat componenta de server si am adaugat componetele de login/signup cu conex
 # 26.06.2024
 
 Completarea functiilor de signup/login , + functii de monitorizare a utilizatorilor conectati
+Modficare la cum "vorbeste" serverul si clientul din asincron -> sincron 
+Modificarea bazei de date sa contina inca 2 tabele , una cu participantii la grupuri , si una cu DM urile
+
+# 27.06.2024
+
+Completare la Signup + login 
+
+Completare componentei sql sa sustina noile tabele  + interogari noi 
+
+Adaugare functie de Direct Message intre 2 utilizatori care sunt online 
+
+Adaugare functie de a vizualiza toate mesajele primite , din BD
+
+Adaugare functie de Create Group
+
+Adaugare functie de Add Users to Group care adauga din utilizatorii case sunt online in grupurile create de cel care apeleaza functia 
+

@@ -153,23 +153,21 @@ void sql_component::add_group(std::string username, std::string group_name)
     int ID = get_id_from_username(username);
     if (ID == -1)
     {
-        std::cerr << "User not FOund\n";
+        std::cerr << "User not found\n";
         return;
     }
     try
     {
-
         SQLite::Transaction transaction(*this->database);
 
         SQLite::Statement query_adding_group(*this->database, "INSERT INTO Groups (ID_Creator, Group_Name, Is_Active) VALUES (?, ?, 1)");
-
         query_adding_group.bind(1, ID);
         query_adding_group.bind(2, group_name);
-
         query_adding_group.exec();
 
+        add_User_to_group(group_name, ID);
         transaction.commit();
-        std::cout << "Transaction Successfull!\n";
+        std::cout << "Group created and creator added to group successfully!\n";
     }
     catch (const std::exception &error)
     {
@@ -177,16 +175,13 @@ void sql_component::add_group(std::string username, std::string group_name)
     }
 }
 
-void sql_component::delete_group()
-{
-}
-
 int sql_component::get_group_id(std::string group_name)
 {
     int Group_ID{};
     try
     {
-        SQLite::Statement query_group_name_to_group_id(*this->database, "Select Group_ID FROM Groups WHERE Group_Name = ?");
+
+        SQLite::Statement query_group_name_to_group_id(*this->database, "SELECT Group_ID FROM Groups WHERE Group_Name = ?");
         query_group_name_to_group_id.bind(1, group_name);
         if (query_group_name_to_group_id.executeStep())
         {
@@ -247,4 +242,128 @@ void sql_component::send_message(std::string username, std::string group_name, s
     {
         std::cerr << e.what() << '\n';
     }
+}
+
+void sql_component::add_User_to_group(std::string Group_Name, int User_ID)
+{
+    int Group_ID = get_group_id(Group_Name);
+    if (Group_ID == -1)
+    {
+        std::cerr << "Group not found\n";
+        return;
+    }
+    try
+    {
+        SQLite::Statement query(*this->database, "INSERT INTO Groups_Participants (Group_ID, ID_Participant) VALUES (?, ?)");
+        query.bind(1, Group_ID);
+        query.bind(2, User_ID);
+        query.exec();
+        std::cout << "User added to group successfully\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
+std::vector<std::pair<int, std::string>> sql_component::get_user_groups(int User_ID)
+{
+    std::vector<std::pair<int, std::string>> groups;
+    try
+    {
+        SQLite::Statement query(*this->database, "SELECT Groups.Group_ID, Groups.Group_Name FROM Groups JOIN Groups_Participants ON Groups.Group_ID = Groups_Participants.Group_ID WHERE Groups_Participants.ID_Participant = ?");
+        query.bind(1, User_ID);
+        while (query.executeStep())
+        {
+            int group_id = query.getColumn(0).getInt();
+            std::string group_name = query.getColumn(1).getText();
+            groups.push_back(std::make_pair(group_id, group_name));
+        }
+        std::cout << "Groups retrieved successfully\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return groups;
+}
+std::string sql_component::get_group_name(int group_id)
+{
+    std::string group_name;
+    try
+    {
+        SQLite::Statement query(*this->database, "SELECT Group_Name FROM Groups WHERE Group_ID = ?");
+        query.bind(1, group_id);
+        if (query.executeStep())
+        {
+            group_name = query.getColumn(0).getText();
+            std::cout << "Got group name from DB: " << group_name << '\n';
+        }
+        else
+        {
+            std::cout << "Failed to get group name from DB\n";
+            group_name = "NULL";
+        }
+    }
+    catch (const std::exception &error)
+    {
+        std::cerr << error.what() << '\n';
+    }
+    return group_name;
+}
+void sql_component::send_DM(int ID_Sender, int ID_Receiver, std::string message)
+{
+    try
+    {
+        SQLite::Transaction transaction(*this->database);
+
+        auto timestamp = std::chrono::system_clock::now();
+        auto timestamp_c = std::chrono::system_clock::to_time_t(timestamp);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&timestamp_c), "%Y-%m-%d %H:%M:%S");
+        std::string timestamp_str = ss.str();
+
+        SQLite::Statement query(*this->database, "INSERT INTO Messages_DM (ID_Sender, ID_Receiver, Timestamp, Message) VALUES (?, ?, ?, ?)");
+        query.bind(1, ID_Sender);
+        query.bind(2, ID_Receiver);
+        query.bind(3, timestamp_str);
+        query.bind(4, message);
+
+        query.exec();
+
+        transaction.commit();
+        std::cout << "Direct message sent successfully\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
+std::vector<std::string> sql_component::get_user_messages(int User_ID)
+{
+    std::vector<std::string> messages;
+    try
+    {
+        SQLite::Statement query(*this->database, "SELECT Users.Username, Messages_DM.Timestamp, Messages_DM.Message FROM Messages_DM JOIN Users ON Messages_DM.ID_Sender = Users.ID WHERE ID_Receiver = ?");
+
+        query.bind(1, User_ID);
+
+        while (query.executeStep())
+        {
+            std::string entry = query.getColumn(0).getText();
+            entry += " ";
+            entry += query.getColumn(1).getText();
+            entry += " ";
+            entry += query.getColumn(2).getText();
+            entry += "\n";
+            messages.push_back(entry);
+        }
+        std::cout << "Messages retrieved successfully\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error retrieving messages: " << e.what() << '\n';
+    }
+    return messages;
 }

@@ -8,6 +8,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <unistd.h>
 
 #include "group_basic.hpp"     /// grup basic , include log uri , nu se sterge niciodata
 #include "group_no_log.hpp"    /// la fel ca cel anterior , doar ca nu tine log uri , chat ul e dinaminc , se sterge fie la restartarea servereului
@@ -26,6 +27,33 @@ private:
     sql_component *server_sql = nullptr;
 
     std::vector<std::pair<int, std::string>> users{};
+    std::mutex mutex_users;
+
+    void check_socket(boost::asio::ip::tcp::socket &socket); /// semi inutila daca clientul inchide conexiunea abrupt , in caz de ceva se poate sterge
+
+    void send_active_users(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void send_user_groups(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void send_user_group_mdms(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    std::string get_data(boost::asio::ip::tcp::socket &socket);
+
+    void send_data(boost::asio::ip::tcp::socket &socket, const std::string &message);
+
+    void dm_user(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void show_dms(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void create_group(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void add_users_to_group(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void send_mdm(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void show_mdms(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+
+    void next_up(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
     void delete_user(std::string ip);
 
@@ -35,9 +63,9 @@ private:
 
     void add_id_to_list(int id_user, std::string ip);
 
-    void login(std::shared_ptr<boost::asio::ip::tcp::socket> socket, bool was_warning_sent);
+    void login(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
-    void signup(std::shared_ptr<boost::asio::ip::tcp::socket> socket, bool was_warning_sent);
+    void signup(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
     void login_or_signup(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
@@ -46,7 +74,7 @@ public:
 
     server(boost::asio::io_context &context, unsigned short port);
 
-    void test_sql_in_server();
+    /// void test_sql_in_server();
 
     ~server();
 };
