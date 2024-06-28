@@ -49,3 +49,8 @@ Adaugare functie de Create Group
 
 Adaugare functie de Add Users to Group care adauga din utilizatorii case sunt online in grupurile create de cel care apeleaza functia 
 
+Adaugare functie de trimitere a unui mesaj intr un grup de care utilizatorul apartine 
+
+Adaugare functie de trimitere a tuturor mesajelor dintr un grup catre user 
+
+Am completat componenta sql cu o functie care sa ia toate mesajele dintr un gerup , dupa id ul grupului

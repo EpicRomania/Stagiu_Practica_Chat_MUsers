@@ -113,10 +113,6 @@ void server::send_user_groups(std::shared_ptr<boost::asio::ip::tcp::socket> sock
     send_data(*socket, sending_str);
 }
 
-void server::send_user_group_mdms(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
-{
-}
-
 void server::dm_user(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
 
@@ -218,6 +214,12 @@ void server::add_users_to_group(std::shared_ptr<boost::asio::ip::tcp::socket> so
     try
     {
         auto received_json = nlohmann::json::parse(data);
+        if (received_json.contains("command") && received_json["command"] == "Quit")
+        {
+            std::cout << "adio add users\n";
+            return;
+        }
+
         std::string user_id_str = received_json["User_ID"];
         std::string group_id_str = received_json["Group_ID"];
 
@@ -245,12 +247,71 @@ void server::add_users_to_group(std::shared_ptr<boost::asio::ip::tcp::socket> so
 
 void server::send_mdm(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
-    send_data(*socket, "Message group function called.\n");
+    std::cout << "going in send_mdm\n";
+    std::string data = get_data(*socket);
+
+    if (data.find("QUIT") != std::string::npos)
+    {
+        std::cout << "User Quit sneding MDMD\n";
+        return;
+    }
+
+    std::cout << "Getting ID from IP\n";
+    std::string ip = socket->remote_endpoint().address().to_string() + ":" + std::to_string(socket->remote_endpoint().port());
+
+    int user_id = -1;
+    for (const auto &user : users)
+    {
+        if (user.second == ip)
+        {
+            user_id = user.first;
+            std::cout << "User ID found: " << user_id << '\n';
+            break;
+        }
+    }
+    std::cout << "Got the ID\n";
+
+    std::cout << '\n'
+              << data << '\n';
+
+    int group_id = std::stoi(data);
+
+    std::string group_name = server_sql->get_group_name(group_id);
+
+    std::string username = server_sql->get_user(user_id);
+
+    std::string message_rec = get_data(*socket);
+
+    std::cout << "Adding message to DB\n";
+    server_sql->send_message(username, group_name, message_rec);
+    std::cout << "hopefly it workd\n";
 }
 
 void server::show_mdms(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
-    send_data(*socket, "Show MDM's function called.\n");
+    std::cout << "going in send_mdms\n";
+
+    std::string data = get_data(*socket);
+
+    if (data.find("QUIT") != std::string::npos)
+    {
+        std::cout << "User Quit sneding MDMD\n";
+        return;
+    }
+
+    int group_id = std::stoi(data);
+
+    std::vector<std::string> mdms_buffer = server_sql->get_MDM(group_id);
+
+    std::string sending_data;
+
+    for (const auto &buffer : mdms_buffer)
+    {
+        sending_data += buffer;
+    }
+    sending_data += "\n";
+
+    send_data(*socket, sending_data);
 }
 
 void server::next_up(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
@@ -307,13 +368,29 @@ void server::next_up(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
                 break;
             }
             case 5:
-                std::cout << "send mdm's\n";
+            {
+                std::cout << "sending groups\n";
+
+                send_user_groups(socket);
+
+                std::cout << "hope the groups sent\n";
+
                 send_mdm(socket);
                 break;
+            }
             case 6:
-                std::cout << "show mdms\n";
+            {
+                std::cout << "sending groups\n";
+
+                send_user_groups(socket);
+
+                std::cout << "hope the groups sent\n";
+
+                std::cout << "sening mdms\n";
                 show_mdms(socket);
+                std::cout << "Hopefully he ot it \n";
                 break;
+            }
             case 7:
                 std::cout << "User quit\n";
                 did_user_quit = true;

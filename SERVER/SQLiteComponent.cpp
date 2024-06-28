@@ -287,6 +287,7 @@ std::vector<std::pair<int, std::string>> sql_component::get_user_groups(int User
     }
     return groups;
 }
+
 std::string sql_component::get_group_name(int group_id)
 {
     std::string group_name;
@@ -311,6 +312,7 @@ std::string sql_component::get_group_name(int group_id)
     }
     return group_name;
 }
+
 void sql_component::send_DM(int ID_Sender, int ID_Receiver, std::string message)
 {
     try
@@ -364,6 +366,43 @@ std::vector<std::string> sql_component::get_user_messages(int User_ID)
     catch (const std::exception &e)
     {
         std::cerr << "Error retrieving messages: " << e.what() << '\n';
+    }
+    return messages;
+}
+
+std::vector<std::string> sql_component::get_MDM(int group_ID)
+{
+    std::vector<std::string> messages;
+    try
+    {
+        SQLite::Statement query(*this->database, "SELECT ID_Sender, Timestamp, Message "
+                                                 "FROM Messages "
+                                                 "WHERE Group_ID = ? "
+                                                 "ORDER BY Timestamp");
+
+        query.bind(1, group_ID);
+
+        while (query.executeStep())
+        {
+            int id_sender = query.getColumn(0).getInt();
+            std::string timestamp = query.getColumn(1).getText();
+            std::string message = query.getColumn(2).getText();
+
+            std::string username = get_user(id_sender);
+
+            std::string formatted_message = username;
+            formatted_message += " | ";
+            formatted_message += timestamp;
+            formatted_message += " | ";
+            formatted_message += message;
+            formatted_message += "\n";
+            messages.push_back(formatted_message);
+        }
+        std::cout << "Group messages retrieved successfully\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error retrieving group messages: " << e.what() << '\n';
     }
     return messages;
 }

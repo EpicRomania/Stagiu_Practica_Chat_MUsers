@@ -68,6 +68,7 @@ void user::receive_user_groups()
 {
     std::cout << "Groups you're a part of:\n";
     std::string data = get_data(socket_);
+    /// std::cout << data;
 
     std::string::size_type start = 0;
     std::string::size_type end = data.find(" ] ");
@@ -83,10 +84,6 @@ void user::receive_user_groups()
     std::string lastGroup = data.substr(start);
     std::replace(lastGroup.begin(), lastGroup.end(), '|', ')');
     std::cout << lastGroup;
-}
-
-void user::receive_user_groups_mdms()
-{
 }
 
 void user::dm_user()
@@ -146,14 +143,12 @@ void user::add_users_to_group()
 
     if (user_id == -1)
     {
-        j["User_ID"] = -1;
-        j["Group_ID"] = -1;
+        j["command"] = "Quit";
+        std::string quiting = j.dump();
+        quiting += "\n";
+        std::cout << quiting;
+        send_data(socket_, quiting);
 
-        std::string data_err1 = j.dump();
-
-        /// std::cout << data_err1;
-
-        send_data(socket_, data_err1);
         return;
     }
     user_id_str = std::to_string(user_id);
@@ -166,13 +161,12 @@ void user::add_users_to_group()
 
     if (id_group == -1)
     {
-        j["User_ID"] = -1;
-        j["Group_ID"] = -1;
+        j["command"] = "Quit";
+        std::string quiting = j.dump();
+        quiting += "\n";
+        std::cout << quiting;
 
-        std::string data_err2 = j.dump();
-        /// std::cout << data_err2;
-
-        send_data(socket_, data_err2);
+        send_data(socket_, quiting);
 
         return;
     }
@@ -191,12 +185,57 @@ void user::add_users_to_group()
 
 void user::send_mdm()
 {
-    respone_next();
+    std::cout << "Choosing -1 will quit\n";
+    int group_id;
+    std::cout << "Choose:\t";
+    std::cin >> group_id;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); /// cin clear
+
+    if (group_id == -1)
+    {
+        std::cout << "Quitting...\n";
+        send_data(socket_, "QUIT\n");
+        return;
+    }
+
+    std::string group_id_str = std::to_string(group_id);
+    group_id_str += "\n";
+
+    send_data(socket_, group_id_str);
+
+    std::string message;
+    std::cout << "Type your message:\t";
+    std::getline(std::cin, message);
+    message += "\n";
+
+    send_data(socket_, message);
+    std::cout << "message sent hopefully\n";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // clear iar
 }
 
 void user::show_mdms()
 {
-    respone_next();
+    std::cout << "Choosing -1 will quit\n";
+    int group_id;
+    std::cout << "Choose:\t";
+    std::cin >> group_id;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); /// cin clear
+
+    if (group_id == -1)
+    {
+        std::cout << "Quitting...\n";
+        send_data(socket_, "QUIT\n");
+        return;
+    }
+
+    std::string group_id_str = std::to_string(group_id);
+    group_id_str += "\n";
+
+    send_data(socket_, group_id_str);
+
+    std::string mdms_received = get_data(socket_);
+
+    std::cout << mdms_received;
 }
 
 void user::what_to_do()
@@ -250,7 +289,7 @@ void user::what_to_do()
             break;
         case 4:
         {
-
+            std::cout << "-1)QUIT";
             receive_users();
 
             receive_user_groups();
@@ -259,11 +298,26 @@ void user::what_to_do()
             break;
         }
         case 5:
+        {
+            std::cout << "-1)QUIT\n";
+
+            receive_user_groups();
+
+            std::cout << "User's group received?\n";
+
             send_mdm();
+
             break;
+        }
         case 6:
+        {
+            std::cout << "-1)QUIT\n";
+
+            receive_user_groups();
+
             show_mdms();
             break;
+        }
         }
     }
 }

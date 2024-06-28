@@ -50,4 +50,6 @@ public:
     std::string get_group_name(int group_id);
 
     std::vector<std::string> get_user_messages(int User_ID);
+
+    std::vector<std::string> get_MDM(int group_ID);
 };

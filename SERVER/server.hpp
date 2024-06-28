@@ -35,8 +35,6 @@ private:
 
     void send_user_groups(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
-    void send_user_group_mdms(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
-
     std::string get_data(boost::asio::ip::tcp::socket &socket);
 
     void send_data(boost::asio::ip::tcp::socket &socket, const std::string &message);
